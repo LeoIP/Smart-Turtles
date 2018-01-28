@@ -5,7 +5,7 @@ import time
 lifespan    = 200               #This is how long each rocket will live
 popSize     = 10                #This is how many rockets is there
 speed       = 10                #This will be how fast the rocket will be, it can move in a 20 pix radius
-screen      = turtle.Screen()   #Higher lifespan, speed, or popSize will make them slower,
+screen      = turtle.Screen()   #Higher lifespan or popSize will make them slower, and lower speed makes them slower.
 turtle.tracer(0,0)              #This makes it so turtles will move at its fastest
 
 
