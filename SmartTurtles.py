@@ -1,11 +1,13 @@
 import random
 import turtle
+import time
 
-lifespan    = 100               #This is how long each rocket will live
+lifespan    = 200               #This is how long each rocket will live
 popSize     = 10                #This is how many rockets is there
 speed       = 10                #This will be how fast the rocket will be, it can move in a 20 pix radius
 screen      = turtle.Screen()   #Higher lifespan, speed, or popSize will make them slower,
 turtle.tracer(0,0)              #This makes it so turtles will move at its fastest
+
 
 def Update ():
     for i in range(lifespan):
@@ -24,30 +26,30 @@ def Update ():
     chancePool = []
     #chancePool is a list of copies of rockets, higher fitness will put more of one copies in there
     for a in population:
-        chance = round(a.fitness * 10000)
+        chance = round(a.fitness)
         copy = a
         for b in range(chance):
             chancePool.append(copy)
-
+    #print(len(chancePool))
     #fakePop will make sure it wont effect the children
     fakePop = []
     for b in range(popSize):
         #This will make a child, randomly choosing from the chance pool.
-        parA = chancePool[random.randint(0, len(chancePool))]
-        parB = chancePool[random.randint(0, len(chancePool))]
+        parA = chancePool[random.randint(0, len(chancePool)-1)]
+        parB = chancePool[random.randint(0, len(chancePool)-1)]
         child = Rocket()
         child.RandomVectors()
         #This is so that the vector can be overridden.
         for c in range(lifespan):
             #This is the how vectors will be transferred
             #It will randomly select one of the parents and give it to the child.
-            #there is also a 1 in a 101 chance of it being a random vector
-            z = random.randint(0,101)
-            if z <= 50:
+            #there is also a 1 in a 50 chance of it being a random vector
+            z = random.randint(0,50)
+            if z <= 25:
                 child.SetVector(parA.vectorList[c], c)
-            elif z < 100 and z > 50:
+            elif z < 49 and z > 25:
                 child.SetVector(parB.vectorList[c], c)
-            elif z == 101:
+            elif z == 50:
                 child.SetVector((random.randint(-speed, speed),(random.randint(-speed, speed))), c)
         
         fakePop.append(child)
@@ -68,6 +70,7 @@ class Rocket():
         self.turt       = turtle.Turtle()
         self.fitness    = 0
         self.won        = False
+        self.startTime  = time.clock()
         self.turt.penup()
         self.turt.setpos(0, 0)
         self.turt.shape("turtle")
@@ -85,21 +88,25 @@ class Rocket():
     
     def UpdatePosition(self, vectIndex):
         #Each vector will add on to the rockets position
-        self.position[0]  = self.position[0] + self.vectorList[vectIndex][0]
-        self.position[1]  = self.position[1] + self.vectorList[vectIndex][1]
-        self.turt.setpos(self.position[0], self.position[1])
+        if self.won == False:
+            self.position[0]  = self.position[0] + self.vectorList[vectIndex][0]
+            self.position[1]  = self.position[1] + self.vectorList[vectIndex][1]
+            self.turt.setpos(self.position[0], self.position[1])
+        else:
+            self.turt.setpos(0,200)
         turtle.update()
     
     def UpdateFitness(self):
-        d = self.turt.distance(0, 200)
+        d = abs(self.turt.distance(0, 200))
         #If the turtle is in a 20 pixel radius, it will be given a high fitness rating
-        if (self.turt.pos()[0] >= 20 and self.turt.pos()[1] <= 20) and (self.turt.pos()[0] >= 180 and self.turt.pos()[1] <= 220):
-            self.fitness = 3
+        if (self.turt.pos()[0] >= -20 and self.turt.pos()[0] <= 20) and (self.turt.pos()[1] >= 180 and self.turt.pos()[1] <= 220):
+            self.fitness = (100/(time.clock() - self.startTime)*.5)
+            #print(time.clock(), self.startTime, time.clock() - self.startTime)
             self.won = True
     
-        if self.won == False:
-            #This is how it calculates fitness
-            self.fitness = 1/d+0.1
+        #This is how it calculates fitness
+        else:
+            self.fitness = (1/(d+0.1)*1000)
     
         
 circ = turtle.Turtle()
